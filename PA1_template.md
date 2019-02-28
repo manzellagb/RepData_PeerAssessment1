@@ -47,7 +47,7 @@ ggsave("./figure/histplot.png", histplot)
 plot(histplot)
 ```
 
-![](PA1_template_files/figure-markdown_github/histplot.png)
+![](figure/histplot.png)
 
 And the following tibble shows mean and median per day.
 
@@ -701,7 +701,7 @@ ggsave("./figure/histplot2.png", histplot2)
 plot(histplot2)
 ```
 
-![](PA1_template_files/figure-markdown_github/histplot2.png)
+![](figure-markdown_github/histplot2.png)
 
 The plot looks about the same, but has a higher frequency of zeros, as expected.
 
@@ -1423,6 +1423,6 @@ ggsave("./figure/plot3.png", plot3)
 plot(plot3)
 ```
 
-![](PA1_template_files/figure-markdown_github/plot3.png)
+![](figure-markdown_github/plot3.png)
 
 From the plot above we can see that there are, in fact, differences between the activity patterns of the weekend and weekdays. The average is lower on a weekend, meaning they rest more.
