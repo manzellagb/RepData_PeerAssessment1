@@ -1,25 +1,125 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: 'Peer-graded Assignment: Course Project 1'
+author: "Gabriela Manzella"
+date: "28 February 2019"
+output: html_document
 ---
 
+####What is the mean total number of steps taken per day? 
 
-## Loading and preprocessing the data
+The following chunk of code calculates the number of steps, the mean and the median per day using dplyr. 
+It also plots a histogram for the number of steps per day. 
+
+```{r}
+library(dplyr)
+library(rmarkdown)
+library(knitr)
+library(ggplot2)
+
+actdata<-read.csv("./activity/activity.csv")
+actdata$date<-as.Date(actdata$date)
+
+mean_per_day<-actdata%>%
+  na.omit()%>%
+  group_by(date)%>%
+  summarise(no_steps=sum(steps), mean_steps=mean(steps), 
+            median_steps=median(steps))
+
+histplot<-ggplot(data=mean_per_day, aes(x=no_steps))+
+  geom_histogram(binwidth = 2000, colour="cadetblue4", fill="cadetblue2")+
+  xlab("Number of steps per day")+
+  ylab("Frequency")+
+  scale_x_continuous(breaks=seq(0,25000, by=2500))+
+  ggtitle("Histogram of number of steps per day")
+
+ggsave("./figure/histplot.png", histplot)
+
+```
+
+```{r}
+plot(histplot)
+```
+
+And the following tibble shows mean and median per day. 
+
+```{r}
+mean_per_day2<-mean_per_day[,c("date", "mean_steps", "median_steps")]
+
+knitr::kable(mean_per_day2, format="html")
+```
+
+####What is the average daily activity pattern?
+
+- How many NAs we have on the data set?
+
+    + This was calculated by finding the number of NAs on the steps column:
+        
+        
+```{r}
+sum(is.na(actdata$steps))
+```
+
+- Fill in all the missing values.
+
+    + This was done by filling in using the median of that day (which is 0 for all of them). 
+  
+```{r}
+
+for (i in 1:length(actdata$steps)){
+  if (is.na(actdata$steps[i])){
+    actdata$steps[i]<-0
+  }
+} 
+
+new_mean_per_day<-actdata%>%
+  group_by(date)%>%
+  summarise(no_steps=sum(steps), mean_steps=mean(steps), 
+            median_steps=median(steps))
+
+histplot2<-ggplot(data=new_mean_per_day, aes(x=no_steps))+
+  geom_histogram(binwidth = 2000, colour="lightpink4", fill="lightpink2")+
+  xlab("Number of steps per day")+
+  ylab("Frequency")+
+  scale_x_continuous(breaks=seq(0,25000, by=2500))+
+  ggtitle("New histogram of number of steps per day by filling in the NAs")
+
+ggsave("./figure/histplot2.png", histplot2)
+
+plot(histplot2)
+
+```
+ 
+The plot looks about the same, but has a higher frequency of zeros, as expected. 
+
+```{r}
+new_mean_per_day2<-new_mean_per_day[,c("date", "mean_steps", "median_steps")]
+
+knitr::kable(new_mean_per_day2, format="html")
+
+```
+
+####Are there differences in activity patterns between weekdays and weekends?
+
+```{r}
+
+actdata2<-actdata%>%
+  mutate(day=weekdays(date), 
+         daytype=ifelse(day=="Saturday" | day=="Sunday", "Weekend", "Weekday"))%>%
+  group_by(interval, daytype)%>%
+  summarise(average_steps=mean(steps))
+
+plot3<-ggplot(data=actdata2, aes(x=interval, y=average_steps))+
+  geom_line()+
+  facet_wrap(~daytype)+
+  ylab("Average number of steps per interval of time")+
+  xlab("5 min interval")
+
+ggsave("./figure/plot3.png", plot3)
+
+plot(plot3)
 
 
 
-## What is mean total number of steps taken per day?
+```
 
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+From the plot above we can see that there are, in fact, differences between the activity patterns of the weekend and weekdays. The average is lower on a weekend, meaning they rest more. 
